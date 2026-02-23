@@ -1,133 +1,148 @@
 // ============================================================
-// 🌫️ MIST OVERLAY COMPONENT
+// 🌫️ MIST OVERLAY — Canvas-based volumetric cloud wisps
 // ============================================================
-// Multiple semi-transparent gradient layers that drift
-// horizontally at different speeds to simulate fog/mist
-// rolling over the forest canopy.
-//
-// Season-aware:
-//  Summer: warm, thin mist (low opacity, warm tint)
-//  Winter: thick, cool fog (high opacity, blue-white tint)
+// Renders realistic drifting cloud/mist wisps using HTML Canvas.
+// Each wisp is a soft radial gradient blob that drifts across
+// the viewport at varying speeds, sizes, and opacities.
+// Matches the Primland "clouds rolling over forest" aesthetic.
 // ============================================================
+
+import { useRef, useEffect, useCallback } from "react";
 
 interface MistOverlayProps {
     season: "summer" | "winter";
 }
 
-interface MistLayerConfig {
-    id: number;
-    height: string;
-    top: string;
-    duration: number;
+interface CloudWisp {
+    x: number;
+    y: number;
+    radius: number;
+    speedX: number;
+    speedY: number;
     opacity: number;
-    opacityWinter: number;
-    gradientSummer: string;
-    gradientWinter: string;
-    delay: number;
+    baseOpacity: number;
+    stretchX: number;
+    stretchY: number;
+    phase: number;       // For breathing / pulsing
+    phaseSpeed: number;
 }
 
-const MIST_LAYERS: MistLayerConfig[] = [
-    {
-        id: 1,
-        height: "35%",
-        top: "55%",
-        duration: 45,
-        opacity: 0.15,
-        opacityWinter: 0.4,
-        gradientSummer:
-            "radial-gradient(ellipse 80% 50% at 30% 50%, rgba(200,210,195,0.5), transparent 70%)",
-        gradientWinter:
-            "radial-gradient(ellipse 80% 50% at 30% 50%, rgba(220,230,240,0.6), transparent 70%)",
-        delay: 0,
-    },
-    {
-        id: 2,
-        height: "28%",
-        top: "62%",
-        duration: 55,
-        opacity: 0.12,
-        opacityWinter: 0.35,
-        gradientSummer:
-            "radial-gradient(ellipse 70% 45% at 60% 50%, rgba(190,200,185,0.45), transparent 65%)",
-        gradientWinter:
-            "radial-gradient(ellipse 70% 45% at 60% 50%, rgba(210,220,235,0.55), transparent 65%)",
-        delay: -15,
-    },
-    {
-        id: 3,
-        height: "22%",
-        top: "70%",
-        duration: 38,
-        opacity: 0.1,
-        opacityWinter: 0.3,
-        gradientSummer:
-            "radial-gradient(ellipse 90% 60% at 50% 50%, rgba(180,195,175,0.4), transparent 75%)",
-        gradientWinter:
-            "radial-gradient(ellipse 90% 60% at 50% 50%, rgba(200,215,230,0.5), transparent 75%)",
-        delay: -25,
-    },
-    {
-        id: 4,
-        height: "18%",
-        top: "45%",
-        duration: 60,
-        opacity: 0.08,
-        opacityWinter: 0.25,
-        gradientSummer:
-            "radial-gradient(ellipse 60% 40% at 40% 50%, rgba(210,215,200,0.35), transparent 60%)",
-        gradientWinter:
-            "radial-gradient(ellipse 60% 40% at 40% 50%, rgba(225,235,245,0.45), transparent 60%)",
-        delay: -8,
-    },
-    {
-        id: 5,
-        height: "30%",
-        top: "35%",
-        duration: 50,
-        opacity: 0.06,
-        opacityWinter: 0.2,
-        gradientSummer:
-            "radial-gradient(ellipse 75% 55% at 70% 50%, rgba(195,205,190,0.3), transparent 70%)",
-        gradientWinter:
-            "radial-gradient(ellipse 75% 55% at 70% 50%, rgba(215,225,240,0.4), transparent 70%)",
-        delay: -18,
-    },
-];
+function createWisps(count: number, width: number, height: number): CloudWisp[] {
+    const wisps: CloudWisp[] = [];
+    for (let i = 0; i < count; i++) {
+        const radius = 80 + Math.random() * 250;
+        wisps.push({
+            x: Math.random() * (width + 400) - 200,
+            y: height * 0.2 + Math.random() * height * 0.65,
+            radius,
+            speedX: 0.15 + Math.random() * 0.45,
+            speedY: (Math.random() - 0.5) * 0.08,
+            opacity: 0,
+            baseOpacity: 0.06 + Math.random() * 0.18,
+            stretchX: 1.8 + Math.random() * 1.5,
+            stretchY: 0.5 + Math.random() * 0.4,
+            phase: Math.random() * Math.PI * 2,
+            phaseSpeed: 0.003 + Math.random() * 0.006,
+        });
+    }
+    return wisps;
+}
 
 export function MistOverlay({ season }: MistOverlayProps) {
-    const isWinter = season === "winter";
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const wispsRef = useRef<CloudWisp[]>([]);
+    const animRef = useRef<number>(0);
+    const seasonRef = useRef(season);
+
+    seasonRef.current = season;
+
+    const draw = useCallback(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const w = canvas.width;
+        const h = canvas.height;
+        const isWinter = seasonRef.current === "winter";
+
+        // Target multiplier for season
+        const seasonMul = isWinter ? 2.2 : 1.0;
+
+        ctx.clearRect(0, 0, w, h);
+
+        for (const wisp of wispsRef.current) {
+            // Move
+            wisp.x += wisp.speedX;
+            wisp.y += wisp.speedY + Math.sin(wisp.phase) * 0.04;
+            wisp.phase += wisp.phaseSpeed;
+
+            // Breathing opacity
+            const breathe = 0.85 + Math.sin(wisp.phase) * 0.15;
+            const targetOpacity = wisp.baseOpacity * seasonMul * breathe;
+            wisp.opacity += (targetOpacity - wisp.opacity) * 0.02;
+
+            // Wrap around
+            const wispWidth = wisp.radius * wisp.stretchX;
+            if (wisp.x - wispWidth > w + 100) {
+                wisp.x = -wispWidth - 50;
+                wisp.y = h * 0.15 + Math.random() * h * 0.7;
+            }
+
+            // Draw radial gradient blob
+            ctx.save();
+            ctx.translate(wisp.x, wisp.y);
+            ctx.scale(wisp.stretchX, wisp.stretchY);
+
+            const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, wisp.radius);
+            if (isWinter) {
+                grad.addColorStop(0, `rgba(220, 230, 240, ${wisp.opacity * 0.9})`);
+                grad.addColorStop(0.3, `rgba(210, 220, 235, ${wisp.opacity * 0.6})`);
+                grad.addColorStop(0.6, `rgba(200, 215, 230, ${wisp.opacity * 0.3})`);
+                grad.addColorStop(1, `rgba(195, 210, 225, 0)`);
+            } else {
+                grad.addColorStop(0, `rgba(240, 240, 235, ${wisp.opacity * 0.85})`);
+                grad.addColorStop(0.3, `rgba(230, 235, 225, ${wisp.opacity * 0.55})`);
+                grad.addColorStop(0.6, `rgba(220, 225, 215, ${wisp.opacity * 0.25})`);
+                grad.addColorStop(1, `rgba(210, 215, 205, 0)`);
+            }
+
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(0, 0, wisp.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        animRef.current = requestAnimationFrame(draw);
+    }, []);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (wispsRef.current.length === 0) {
+                wispsRef.current = createWisps(18, canvas.width, canvas.height);
+            }
+        };
+        resize();
+        window.addEventListener("resize", resize);
+        animRef.current = requestAnimationFrame(draw);
+
+        return () => {
+            window.removeEventListener("resize", resize);
+            cancelAnimationFrame(animRef.current);
+        };
+    }, [draw]);
 
     return (
-        <div className="absolute inset-0 pointer-events-none z-[4] overflow-hidden">
-            {MIST_LAYERS.map((layer) => (
-                <div
-                    key={layer.id}
-                    className="absolute mist-drift"
-                    style={{
-                        top: layer.top,
-                        height: layer.height,
-                        left: 0,
-                        width: "250%",
-                        background: isWinter ? layer.gradientWinter : layer.gradientSummer,
-                        opacity: isWinter ? layer.opacityWinter : layer.opacity,
-                        animationDuration: `${layer.duration}s`,
-                        animationDelay: `${layer.delay}s`,
-                        transition: "opacity 1.8s ease-in-out, background 1.8s ease-in-out",
-                    }}
-                />
-            ))}
-
-            {/* Extra bottom ground-fog layer */}
-            <div
-                className="absolute bottom-0 left-0 w-full"
-                style={{
-                    height: "20%",
-                    background: isWinter
-                        ? "linear-gradient(to top, rgba(200,215,230,0.35), transparent)"
-                        : "linear-gradient(to top, rgba(180,195,175,0.15), transparent)",
-                    transition: "background 1.8s ease-in-out",
-                }}
-            />
-        </div>
+        <canvas
+            ref={canvasRef}
+            className="absolute inset-0 pointer-events-none z-[4]"
+            style={{ mixBlendMode: "screen" }}
+        />
     );
 }
