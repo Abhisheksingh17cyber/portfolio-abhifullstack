@@ -9,7 +9,7 @@
 import { useRef, useEffect, useCallback } from "react";
 
 interface FlyingBirdsProps {
-  season: "summer" | "winter";
+  season: "summer" | "fall";
 }
 
 interface Bird {
@@ -99,8 +99,8 @@ export function FlyingBirds({ season }: FlyingBirdsProps) {
     const w = canvas.width;
     const h = canvas.height;
 
-    // Fade in/out based on season
-    const targetOpacity = seasonRef.current === "winter" ? 0 : 1;
+    // Birds always visible in both seasons
+    const targetOpacity = 1;
     globalOpacityRef.current += (targetOpacity - globalOpacityRef.current) * 0.015;
 
     ctx.clearRect(0, 0, w, h);

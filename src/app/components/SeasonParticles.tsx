@@ -2,14 +2,14 @@
 // ❄️🍂 SEASON PARTICLES — Canvas-based snow / falling leaves
 // ============================================================
 // Realistic particle system using Canvas:
-//  Winter: Dense snowflakes with wind drift, varying sizes
-//  Summer: Gentle falling leaves with rotation and tumbling
+//  Fall: Dense warm-colored falling leaves with rotation
+//  Summer: Gentle green leaves drifting gently
 // ============================================================
 
 import { useRef, useEffect, useCallback } from "react";
 
 interface SeasonParticlesProps {
-    season: "summer" | "winter";
+    season: "summer" | "fall";
 }
 
 interface Particle {
@@ -121,8 +121,8 @@ export function SeasonParticles({ season }: SeasonParticlesProps) {
         // Recreate particles if season changed
         if (prevSeasonRef.current !== currentSeason) {
             prevSeasonRef.current = currentSeason;
-            const type = currentSeason === "winter" ? "snow" : "leaf";
-            const count = currentSeason === "winter" ? 120 : 25;
+            const type = "leaf";
+            const count = currentSeason === "fall" ? 45 : 15;
             particlesRef.current = createParticles(count, w, h, type);
         }
 
@@ -166,8 +166,8 @@ export function SeasonParticles({ season }: SeasonParticlesProps) {
         const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            const type = seasonRef.current === "winter" ? "snow" : "leaf";
-            const count = seasonRef.current === "winter" ? 120 : 25;
+            const type = "leaf";
+            const count = seasonRef.current === "fall" ? 45 : 15;
             particlesRef.current = createParticles(count, canvas.width, canvas.height, type);
         };
         resize();

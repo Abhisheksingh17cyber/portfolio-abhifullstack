@@ -28,20 +28,22 @@ export interface PinData {
 // ─── YOUR NAME & PERSONAL INFO ──────────────────────────────
 // Shown in the top-center header of the map
 export const ownerInfo = {
-  initials: "AJ",                            // Top-left corner
-  name: "Alex Johnson",                      // Large center name
-  subtitle: "Full Stack Developer",          // Below name in small caps
-  contactEmail: "alex@example.com",          // CONTACT link (top right)
-  resumeUrl: "#",                            // Linked from About panel
+  initials: "AS",
+  name: "Abhishek Singh",
+  subtitle: "Full Stack Developer",
+  contactEmail: "abhishek@example.com",
+  resumeUrl: "#",
 };
 
 // ─── MAP BACKGROUNDS ────────────────────────────────────────
-// Summer (default) and Winter backgrounds for season toggle
+// Aerial top-down forest image — season change is handled via CSS filters
+// in App.tsx (single image approach with hue-rotate + sepia for fall)
 export const mapBackground =
-  "https://images.unsplash.com/photo-1764416756589-4116250ca2ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZXJpYWwlMjBkcm9uZSUyMHZpZXclMjBkZW5zZSUyMGF1dHVtbiUyMGZvcmVzdCUyMGxhbmRzY2FwZXxlbnwxfHx8fDE3NzE3NzQxMzV8MA&ixlib=rb-4.1.0&q=80&w=2000";
+  "https://images.unsplash.com/photo-1476231682828-37e571bc172f?auto=format&fit=crop&w=2400&q=85";
 
-export const mapBackgroundWinter =
-  "https://images.unsplash.com/photo-1491002052546-bf38f186af56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8c25vd3klMjBmb3Jlc3QlMjBhZXJpYWwlMjBkcm9uZSUyMHdpbnRlcnxlbnwwfHx8fDE3MDk5MTIwMDB8MA&ixlib=rb-4.1.0&q=80&w=2000";
+// Legacy — kept for compatibility but no longer used in single-image approach
+export const mapBackgroundFall =
+  "https://images.unsplash.com/photo-1476231682828-37e571bc172f?auto=format&fit=crop&w=2400&q=85";
 
 // ─── MAP PINS ────────────────────────────────────────────────
 // Each pin = one section of your portfolio.

@@ -10,7 +10,7 @@
 import { useRef, useEffect, useCallback } from "react";
 
 interface MistOverlayProps {
-    season: "summer" | "winter";
+    season: "summer" | "fall";
 }
 
 interface CloudWisp {
@@ -64,10 +64,10 @@ export function MistOverlay({ season }: MistOverlayProps) {
 
         const w = canvas.width;
         const h = canvas.height;
-        const isWinter = seasonRef.current === "winter";
+        const isFall = seasonRef.current === "fall";
 
         // Target multiplier for season
-        const seasonMul = isWinter ? 2.2 : 1.0;
+        const seasonMul = isFall ? 1.6 : 1.0;
 
         ctx.clearRect(0, 0, w, h);
 
@@ -95,11 +95,11 @@ export function MistOverlay({ season }: MistOverlayProps) {
             ctx.scale(wisp.stretchX, wisp.stretchY);
 
             const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, wisp.radius);
-            if (isWinter) {
-                grad.addColorStop(0, `rgba(220, 230, 240, ${wisp.opacity * 0.9})`);
-                grad.addColorStop(0.3, `rgba(210, 220, 235, ${wisp.opacity * 0.6})`);
-                grad.addColorStop(0.6, `rgba(200, 215, 230, ${wisp.opacity * 0.3})`);
-                grad.addColorStop(1, `rgba(195, 210, 225, 0)`);
+            if (isFall) {
+                grad.addColorStop(0, `rgba(230, 215, 195, ${wisp.opacity * 0.9})`);
+                grad.addColorStop(0.3, `rgba(220, 200, 180, ${wisp.opacity * 0.6})`);
+                grad.addColorStop(0.6, `rgba(210, 190, 170, ${wisp.opacity * 0.3})`);
+                grad.addColorStop(1, `rgba(200, 185, 165, 0)`);
             } else {
                 grad.addColorStop(0, `rgba(240, 240, 235, ${wisp.opacity * 0.85})`);
                 grad.addColorStop(0.3, `rgba(230, 235, 225, ${wisp.opacity * 0.55})`);

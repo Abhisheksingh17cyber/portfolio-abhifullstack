@@ -2,15 +2,16 @@
 // 🌤️❄️ SEASON TOGGLE — Polished Primland-style side control
 // ============================================================
 // Positioned on the left edge, vertically centered.
-// Two circular icons (sun/snowflake) with an animated
+// Two circular icons (sun/leaf) with an animated
 // selection indicator that slides between them.
 // Matches the refined, minimal Primland aesthetic.
+// Seasons: Summer ↔ Fall
 // ============================================================
 
 import { motion } from "motion/react";
 
 interface SeasonToggleProps {
-    season: "summer" | "winter";
+    season: "summer" | "fall";
     onToggle: () => void;
 }
 
@@ -57,7 +58,7 @@ export function SeasonToggle({ season, onToggle }: SeasonToggleProps) {
                 onClick={onToggle}
                 role="button"
                 tabIndex={0}
-                aria-label={`Switch to ${isSummer ? "winter" : "summer"}`}
+                aria-label={`Switch to ${isSummer ? "fall" : "summer"}`}
             >
                 {/* Sliding highlight pill */}
                 <motion.div
@@ -73,10 +74,10 @@ export function SeasonToggle({ season, onToggle }: SeasonToggleProps) {
                         borderRadius: "16px",
                         background: isSummer
                             ? "linear-gradient(135deg, rgba(255,200,60,0.85), rgba(255,170,40,0.7))"
-                            : "linear-gradient(135deg, rgba(160,200,240,0.7), rgba(130,175,220,0.6))",
+                            : "linear-gradient(135deg, rgba(200,130,50,0.8), rgba(180,100,30,0.7))",
                         boxShadow: isSummer
                             ? "0 2px 12px rgba(255,180,40,0.3)"
-                            : "0 2px 12px rgba(140,180,220,0.3)",
+                            : "0 2px 12px rgba(190,120,40,0.3)",
                         transition: "background 0.6s ease, box-shadow 0.6s ease",
                     }}
                 />
@@ -114,49 +115,27 @@ export function SeasonToggle({ season, onToggle }: SeasonToggleProps) {
                     </svg>
                 </div>
 
-                {/* Winter icon (snowflake) */}
+                {/* Fall icon (leaf) */}
                 <div
                     className="relative z-10 flex items-center justify-center"
                     style={{ width: "38px", height: "42px" }}
                 >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        {/* Main cross */}
-                        <line x1="12" y1="2" x2="12" y2="22"
-                            stroke={!isSummer ? "rgba(20,40,60,0.9)" : "rgba(255,255,255,0.35)"}
-                            strokeWidth="1.3" strokeLinecap="round"
+                        {/* Leaf shape */}
+                        <path
+                            d="M17 3C17 3 12 8 7 13C5 15 4 18 6 20C8 22 11 21 13 19C18 14 23 9 23 9C23 9 18 10 15 11"
+                            stroke={!isSummer ? "rgba(60,30,10,0.9)" : "rgba(255,255,255,0.35)"}
+                            strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"
+                            fill="none"
                             style={{ transition: "stroke 0.5s ease" }}
                         />
-                        <line x1="2" y1="12" x2="22" y2="12"
-                            stroke={!isSummer ? "rgba(20,40,60,0.9)" : "rgba(255,255,255,0.35)"}
-                            strokeWidth="1.3" strokeLinecap="round"
+                        {/* Stem */}
+                        <path
+                            d="M2 22L9.5 14.5"
+                            stroke={!isSummer ? "rgba(60,30,10,0.9)" : "rgba(255,255,255,0.35)"}
+                            strokeWidth="1.2" strokeLinecap="round"
                             style={{ transition: "stroke 0.5s ease" }}
                         />
-                        {/* Diagonal arms */}
-                        <line x1="5" y1="5" x2="19" y2="19"
-                            stroke={!isSummer ? "rgba(20,40,60,0.9)" : "rgba(255,255,255,0.35)"}
-                            strokeWidth="1" strokeLinecap="round"
-                            style={{ transition: "stroke 0.5s ease" }}
-                        />
-                        <line x1="19" y1="5" x2="5" y2="19"
-                            stroke={!isSummer ? "rgba(20,40,60,0.9)" : "rgba(255,255,255,0.35)"}
-                            strokeWidth="1" strokeLinecap="round"
-                            style={{ transition: "stroke 0.5s ease" }}
-                        />
-                        {/* Branch tips */}
-                        {[
-                            [12, 4, 10, 6], [12, 4, 14, 6],
-                            [12, 20, 10, 18], [12, 20, 14, 18],
-                            [4, 12, 6, 10], [4, 12, 6, 14],
-                            [20, 12, 18, 10], [20, 12, 18, 14],
-                        ].map(([x1, y1, x2, y2], i) => (
-                            <line
-                                key={i}
-                                x1={x1} y1={y1} x2={x2} y2={y2}
-                                stroke={!isSummer ? "rgba(20,40,60,0.9)" : "rgba(255,255,255,0.35)"}
-                                strokeWidth="0.8" strokeLinecap="round"
-                                style={{ transition: "stroke 0.5s ease" }}
-                            />
-                        ))}
                     </svg>
                 </div>
             </div>
@@ -178,7 +157,7 @@ export function SeasonToggle({ season, onToggle }: SeasonToggleProps) {
                     textOrientation: "mixed",
                 }}
             >
-                {isSummer ? "Summer" : "Winter"}
+                {isSummer ? "Summer" : "Fall"}
             </motion.div>
         </motion.div>
     );
