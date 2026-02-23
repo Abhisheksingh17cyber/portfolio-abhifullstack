@@ -10,6 +10,8 @@
 //  • Clicking a pin slides in a detail panel from the right
 //  • "EXPLORE PORTFOLIO" button at the bottom lists all sections
 //  • CONTACT link top-right opens your email
+//  • Season toggle switches between Summer ↔ Winter with effects
+//  • Flying birds, drifting mist, and particles add ambiance
 //
 // ✏️ TO EDIT CONTENT:
 //   Open /src/app/data/portfolio-data.ts
@@ -20,14 +22,19 @@
 
 import { useState, useCallback } from "react";
 import { motion } from "motion/react";
-import { mapPins, mapBackground, ownerInfo } from "./data/portfolio-data";
+import { mapPins, mapBackground, mapBackgroundWinter, ownerInfo } from "./data/portfolio-data";
 import { MapPin } from "./components/MapPin";
 import { SidePanel } from "./components/SidePanel";
 import { CompassRose } from "./components/CompassRose";
 import { ExploreMenu } from "./components/ExploreMenu";
+import { FlyingBirds } from "./components/FlyingBirds";
+import { MistOverlay } from "./components/MistOverlay";
+import { SeasonToggle } from "./components/SeasonToggle";
+import { SeasonParticles } from "./components/SeasonParticles";
 
 export default function App() {
   const [activePinId, setActivePinId] = useState<string | null>(null);
+  const [season, setSeason] = useState<"summer" | "winter">("summer");
 
   const activePin = mapPins.find((p) => p.id === activePinId) ?? null;
 
@@ -39,60 +46,107 @@ export default function App() {
     setActivePinId(null);
   }, []);
 
+  const handleSeasonToggle = useCallback(() => {
+    setSeason((prev) => (prev === "summer" ? "winter" : "summer"));
+  }, []);
+
+  const isWinter = season === "winter";
+
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-[#1a1f18]">
 
-      {/* ── AERIAL MAP BACKGROUND ── */}
+      {/* ── AERIAL MAP BACKGROUND (Summer) ── */}
       <div className="absolute inset-0">
         <img
           src={mapBackground}
-          alt="Aerial landscape map"
-          className="w-full h-full object-cover"
+          alt="Aerial landscape map — summer"
+          className="w-full h-full object-cover season-bg"
           style={{
             objectPosition: "center center",
-            // Slightly shift map left when panel is open to keep pins centered
             transform: activePinId ? "scale(1.02) translateX(-3%)" : "scale(1)",
-            transition: "transform 0.6s cubic-bezier(0.32, 0.72, 0, 1)",
+            transition: "transform 0.6s cubic-bezier(0.32, 0.72, 0, 1), opacity 1.4s cubic-bezier(0.4, 0, 0.2, 1)",
+            opacity: isWinter ? 0 : 1,
           }}
         />
+      </div>
 
-        {/* Edge fog / vignette (matches Primland's misty edges) */}
-        <div
-          className="absolute inset-0 pointer-events-none"
+      {/* ── AERIAL MAP BACKGROUND (Winter) ── */}
+      <div className="absolute inset-0">
+        <img
+          src={mapBackgroundWinter}
+          alt="Aerial landscape map — winter"
+          className="w-full h-full object-cover season-bg"
           style={{
-            background:
-              "radial-gradient(ellipse at center, transparent 45%, rgba(15,20,14,0.45) 80%, rgba(10,14,9,0.75) 100%)",
+            objectPosition: "center center",
+            transform: activePinId ? "scale(1.02) translateX(-3%)" : "scale(1)",
+            transition: "transform 0.6s cubic-bezier(0.32, 0.72, 0, 1), opacity 1.4s cubic-bezier(0.4, 0, 0.2, 1)",
+            opacity: isWinter ? 1 : 0,
+          }}
+        />
+      </div>
+
+      {/* ── VIGNETTE / FOG EDGES ── */}
+      <div className="absolute inset-0 pointer-events-none z-[2]">
+        {/* Edge fog / vignette */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: isWinter
+              ? "radial-gradient(ellipse at center, transparent 45%, rgba(20,30,45,0.45) 80%, rgba(15,22,35,0.75) 100%)"
+              : "radial-gradient(ellipse at center, transparent 45%, rgba(15,20,14,0.45) 80%, rgba(10,14,9,0.75) 100%)",
+            transition: "background 1.5s ease-in-out",
           }}
         />
         {/* Left fog */}
         <div
-          className="absolute inset-y-0 left-0 w-40 pointer-events-none"
+          className="absolute inset-y-0 left-0 w-40"
           style={{
-            background: "linear-gradient(to right, rgba(15,20,14,0.6), transparent)",
+            background: isWinter
+              ? "linear-gradient(to right, rgba(20,30,45,0.6), transparent)"
+              : "linear-gradient(to right, rgba(15,20,14,0.6), transparent)",
+            transition: "background 1.5s ease-in-out",
           }}
         />
         {/* Right fog */}
         <div
-          className="absolute inset-y-0 right-0 w-40 pointer-events-none"
+          className="absolute inset-y-0 right-0 w-40"
           style={{
-            background: "linear-gradient(to left, rgba(15,20,14,0.6), transparent)",
+            background: isWinter
+              ? "linear-gradient(to left, rgba(20,30,45,0.6), transparent)"
+              : "linear-gradient(to left, rgba(15,20,14,0.6), transparent)",
+            transition: "background 1.5s ease-in-out",
           }}
         />
         {/* Top fade */}
         <div
-          className="absolute inset-x-0 top-0 h-28 pointer-events-none"
+          className="absolute inset-x-0 top-0 h-28"
           style={{
-            background: "linear-gradient(to bottom, rgba(12,17,11,0.55), transparent)",
+            background: isWinter
+              ? "linear-gradient(to bottom, rgba(15,22,35,0.55), transparent)"
+              : "linear-gradient(to bottom, rgba(12,17,11,0.55), transparent)",
+            transition: "background 1.5s ease-in-out",
           }}
         />
         {/* Bottom fade */}
         <div
-          className="absolute inset-x-0 bottom-0 h-28 pointer-events-none"
+          className="absolute inset-x-0 bottom-0 h-28"
           style={{
-            background: "linear-gradient(to top, rgba(12,17,11,0.6), transparent)",
+            background: isWinter
+              ? "linear-gradient(to top, rgba(15,22,35,0.6), transparent)"
+              : "linear-gradient(to top, rgba(12,17,11,0.6), transparent)",
+            transition: "background 1.5s ease-in-out",
           }}
         />
       </div>
+
+      {/* ── MIST OVERLAY (drifting fog layers) ── */}
+      <MistOverlay season={season} />
+
+      {/* ── FLYING BIRDS ── */}
+      <FlyingBirds season={season} />
+
+      {/* ── SEASON PARTICLES (snowflakes / leaves) ── */}
+      <SeasonParticles season={season} />
 
       {/* ── TOP NAVIGATION BAR ── */}
       <motion.header
@@ -190,6 +244,9 @@ export default function App() {
           onClick={() => handlePinClick(pin.id)}
         />
       ))}
+
+      {/* ── LEFT SIDE: SEASON TOGGLE ── */}
+      <SeasonToggle season={season} onToggle={handleSeasonToggle} />
 
       {/* ── BOTTOM LEFT: COMPASS ROSE ── */}
       <CompassRose />

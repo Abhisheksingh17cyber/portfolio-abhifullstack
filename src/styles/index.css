@@ -1,3 +1,110 @@
-@import './fonts.css';
-@import './tailwind.css';
-@import './theme.css';
+@import "./tailwind.css";
+@import "./theme.css";
+@import "./fonts.css";
+
+/* ── NATURE EFFECT KEYFRAMES ── */
+
+/* Mist / fog horizontal drift — seamless infinite scroll */
+@keyframes mistDrift {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-40%);
+  }
+}
+
+.mist-drift {
+  animation: mistDrift linear infinite;
+}
+
+/* Bird flight — horizontal travel across viewport */
+@keyframes birdFly {
+  0% {
+    transform: translateX(0) translateY(0);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(calc(50vw + 30px)) translateY(-18px);
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(calc(110vw + 60px)) translateY(8px);
+    opacity: 0;
+  }
+}
+
+.bird-fly {
+  animation: birdFly linear infinite;
+}
+
+/* Bird wing flapping */
+@keyframes birdFlap {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(-1);
+  }
+}
+
+.bird-flap {
+  animation: birdFlap ease-in-out infinite;
+}
+
+/* Snowfall particles */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-10px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100vh) translateX(30px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.snowflake-particle {
+  animation: snowfall linear infinite;
+}
+
+/* Falling leaves */
+@keyframes leafFall {
+  0% {
+    transform: translateY(-10px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(50vh) translateX(40px) rotate(180deg);
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(100vh) translateX(-20px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.leaf-particle {
+  animation: leafFall linear infinite;
+}
+
+/* Season cross-fade transition on background images */
+.season-bg {
+  transition: opacity 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -35,10 +35,13 @@ export const ownerInfo = {
   resumeUrl: "#",                            // Linked from About panel
 };
 
-// ─── MAP BACKGROUND ─────────────────────────────────────────
-// Replace with your own aerial / landscape image URL
+// ─── MAP BACKGROUNDS ────────────────────────────────────────
+// Summer (default) and Winter backgrounds for season toggle
 export const mapBackground =
   "https://images.unsplash.com/photo-1764416756589-4116250ca2ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZXJpYWwlMjBkcm9uZSUyMHZpZXclMjBkZW5zZSUyMGF1dHVtbiUyMGZvcmVzdCUyMGxhbmRzY2FwZXxlbnwxfHx8fDE3NzE3NzQxMzV8MA&ixlib=rb-4.1.0&q=80&w=2000";
+
+export const mapBackgroundWinter =
+  "https://images.unsplash.com/photo-1491002052546-bf38f186af56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8c25vd3klMjBmb3Jlc3QlMjBhZXJpYWwlMjBkcm9uZSUyMHdpbnRlcnxlbnwwfHx8fDE3MDk5MTIwMDB8MA&ixlib=rb-4.1.0&q=80&w=2000";
 
 // ─── MAP PINS ────────────────────────────────────────────────
 // Each pin = one section of your portfolio.
@@ -197,16 +200,22 @@ export const mapPins: PinData[] = [
     image:
       "https://images.unsplash.com/photo-1638636241638-aef5120c5153?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjZXJ0aWZpY2F0ZSUyMGRpcGxvbWElMjBhd2FyZCUyMGFjaGlldmVtZW50JTIwZG9jdW1lbnR8ZW58MXx8fHwxNzcxNzc0MTQ1fDA&ixlib=rb-4.1.0&q=80&w=800",
     heading: "Certifications",
-    body: "A commitment to continuous learning and validated expertise across cloud, frontend, backend, and DevOps disciplines. Each certification represents real-world applied knowledge.",
+    body: "A commitment to continuous learning and validated expertise across AI, web development, SEO, cybersecurity, and design. Each certification represents real-world applied knowledge.",
     details: [
-      // ── ADD YOUR CERTIFICATES BELOW ──
-      // Format: "Certificate Name — Issuer (Year)"
-      "AWS Certified Solutions Architect — Amazon (2024)",
-      "Meta React Developer Certificate — Meta (2024)",
-      "Google Professional Cloud Developer — Google (2023)",
-      "MongoDB Associate Developer — MongoDB University (2023)",
-      "Certified Kubernetes Administrator — CNCF (2023)",
-      "TypeScript Advanced — Udemy (2023)",
+      "AI for Beginners",
+      "AI Power Market",
+      "AI Power Shopping Ads",
+      "Canva 50 Design",
+      "Introduction to Career Skills in Software Development",
+      "Cybersecurity",
+      "Excel in an Hour",
+      "Excel",
+      "Introduction to Generative AI",
+      "Prompt Engineering",
+      "React JS",
+      "SEO (Advanced)",
+      "SEO",
+      "Web Development",
     ],
     links: [
       { label: "View All Credentials", url: "#", style: "primary" },
