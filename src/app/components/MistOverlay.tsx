@@ -10,7 +10,7 @@
 import { useRef, useEffect, useCallback } from "react";
 
 interface MistOverlayProps {
-    season: "summer" | "fall";
+    season: "spring" | "summer" | "fall" | "winter";
 }
 
 interface CloudWisp {
@@ -95,16 +95,24 @@ export function MistOverlay({ season }: MistOverlayProps) {
             ctx.scale(wisp.stretchX, wisp.stretchY);
 
             const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, wisp.radius);
-            if (isFall) {
-                grad.addColorStop(0, `rgba(230, 215, 195, ${wisp.opacity * 0.9})`);
-                grad.addColorStop(0.3, `rgba(220, 200, 180, ${wisp.opacity * 0.6})`);
-                grad.addColorStop(0.6, `rgba(210, 190, 170, ${wisp.opacity * 0.3})`);
-                grad.addColorStop(1, `rgba(200, 185, 165, 0)`);
-            } else {
-                grad.addColorStop(0, `rgba(240, 240, 235, ${wisp.opacity * 0.85})`);
-                grad.addColorStop(0.3, `rgba(230, 235, 225, ${wisp.opacity * 0.55})`);
-                grad.addColorStop(0.6, `rgba(220, 225, 215, ${wisp.opacity * 0.25})`);
-                grad.addColorStop(1, `rgba(210, 215, 205, 0)`);
+            const currentSeason = seasonRef.current;
+
+            if (currentSeason === "spring") {
+                grad.addColorStop(0, `rgba(235, 245, 220, ${wisp.opacity * 0.8})`);
+                grad.addColorStop(0.3, `rgba(225, 235, 210, ${wisp.opacity * 0.5})`);
+                grad.addColorStop(1, `rgba(215, 225, 200, 0)`);
+            } else if (currentSeason === "summer") {
+                grad.addColorStop(0, `rgba(240, 240, 230, ${wisp.opacity * 0.85})`);
+                grad.addColorStop(0.3, `rgba(230, 235, 220, ${wisp.opacity * 0.55})`);
+                grad.addColorStop(1, `rgba(220, 225, 210, 0)`);
+            } else if (currentSeason === "fall") {
+                grad.addColorStop(0, `rgba(235, 220, 200, ${wisp.opacity * 0.95})`);
+                grad.addColorStop(0.3, `rgba(225, 205, 185, ${wisp.opacity * 0.65})`);
+                grad.addColorStop(1, `rgba(215, 190, 175, 0)`);
+            } else { // Winter
+                grad.addColorStop(0, `rgba(210, 225, 245, ${wisp.opacity * 0.7})`);
+                grad.addColorStop(0.3, `rgba(200, 215, 235, ${wisp.opacity * 0.4})`);
+                grad.addColorStop(1, `rgba(180, 200, 220, 0)`);
             }
 
             ctx.fillStyle = grad;

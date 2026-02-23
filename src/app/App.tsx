@@ -25,7 +25,7 @@ import { SeasonParticles } from "./components/SeasonParticles";
 import { LandingHero } from "./components/LandingHero";
 
 type AppPhase = "landing" | "transitioning" | "map";
-type Season = "summer" | "fall";
+type Season = "spring" | "summer" | "fall" | "winter";
 
 export default function App() {
   const [phase, setPhase] = useState<AppPhase>("landing");
@@ -33,7 +33,10 @@ export default function App() {
   const [season, setSeason] = useState<Season>("summer");
 
   const activePin = mapPins.find((p) => p.id === activePinId) ?? null;
+  const isSpring = season === "spring";
+  const isSummer = season === "summer";
   const isFall = season === "fall";
+  const isWinter = season === "winter";
 
   const handleExplore = useCallback(() => {
     setPhase("transitioning");
@@ -50,7 +53,12 @@ export default function App() {
   }, []);
 
   const handleSeasonToggle = useCallback(() => {
-    setSeason((prev) => (prev === "summer" ? "fall" : "summer"));
+    setSeason((prev) => {
+      if (prev === "spring") return "summer";
+      if (prev === "summer") return "fall";
+      if (prev === "fall") return "winter";
+      return "spring";
+    });
   }, []);
 
 
@@ -76,10 +84,12 @@ export default function App() {
           style={{
             objectPosition: "center center",
             transform: activePinId ? "scale(1.05) translateX(-2%)" : "scale(1.02)",
-            transition: "transform 0.8s cubic-bezier(0.32, 0.72, 0, 1), filter 3s cubic-bezier(0.4, 0, 0.2, 1)",
-            filter: isFall
-              ? "saturate(1.3) sepia(0.35) hue-rotate(-10deg) brightness(0.88) contrast(1.1)"
-              : "saturate(1.15) brightness(1.0) contrast(1.05)",
+            transition: "transform 0.8s cubic-bezier(0.32, 0.72, 0, 1), filter 5s cubic-bezier(0.4, 0, 0.2, 1)",
+            filter:
+              isSpring ? "saturate(1.2) brightness(1.05) contrast(1.05) hue-rotate(-5deg)" :
+                isSummer ? "saturate(1.4) brightness(1.1) contrast(1.1)" :
+                  isFall ? "saturate(1.45) sepia(0.4) hue-rotate(-18deg) brightness(0.85) contrast(1.05)" :
+                    "saturate(0.4) brightness(0.85) contrast(0.9) hue-rotate(170deg) sepia(0.2)",
           }}
         />
       </motion.div>
@@ -91,11 +101,13 @@ export default function App() {
       <div
         className="absolute inset-0 pointer-events-none z-[1]"
         style={{
-          background: isFall
-            ? "linear-gradient(160deg, rgba(120,60,10,0.18) 0%, rgba(80,40,5,0.12) 40%, rgba(140,70,15,0.15) 100%)"
-            : "transparent",
+          background:
+            isSpring ? "linear-gradient(160deg, rgba(160,255,100,0.08) 0%, rgba(100,200,60,0.05) 50%, rgba(180,255,120,0.08) 100%)" :
+              isSummer ? "linear-gradient(160deg, rgba(255,220,100,0.1) 0%, rgba(255,180,40,0.06) 50%, rgba(255,200,80,0.1) 100%)" :
+                isFall ? "linear-gradient(160deg, rgba(120,60,10,0.2) 0%, rgba(80,40,5,0.15) 50%, rgba(140,70,15,0.2) 100%)" :
+                  "linear-gradient(160deg, rgba(140,180,255,0.1) 0%, rgba(100,140,240,0.06) 50%, rgba(160,200,255,0.1) 100%)",
           mixBlendMode: "overlay",
-          transition: "background 3s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: "background 5s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       />
 
@@ -107,50 +119,60 @@ export default function App() {
         <div
           className="absolute inset-0"
           style={{
-            background: isFall
-              ? "radial-gradient(ellipse at center, transparent 40%, rgba(30,20,10,0.5) 75%, rgba(15,10,5,0.82) 100%)"
-              : "radial-gradient(ellipse at center, transparent 40%, rgba(12,18,10,0.5) 75%, rgba(6,10,5,0.82) 100%)",
-            transition: "background 3s ease-in-out",
+            background:
+              isSpring ? "radial-gradient(ellipse at center, transparent 40%, rgba(15,22,12,0.45) 75%, rgba(8,12,6,0.78) 100%)" :
+                isSummer ? "radial-gradient(ellipse at center, transparent 40%, rgba(22,18,10,0.45) 75%, rgba(12,8,5,0.78) 100%)" :
+                  isFall ? "radial-gradient(ellipse at center, transparent 40%, rgba(30,20,10,0.55) 75%, rgba(15,10,5,0.85) 100%)" :
+                    "radial-gradient(ellipse at center, transparent 40%, rgba(10,20,35,0.5) 75%, rgba(5,10,20,0.8) 100%)",
+            transition: "background 5s ease-in-out",
           }}
         />
         {/* Left fog */}
         <div
           className="absolute inset-y-0 left-0 w-48"
           style={{
-            background: isFall
-              ? "linear-gradient(to right, rgba(25,15,5,0.7), transparent)"
-              : "linear-gradient(to right, rgba(10,15,8,0.7), transparent)",
-            transition: "background 3s ease-in-out",
+            background:
+              isSpring ? "linear-gradient(to right, rgba(12,18,10,0.7), transparent)" :
+                isSummer ? "linear-gradient(to right, rgba(18,15,8,0.7), transparent)" :
+                  isFall ? "linear-gradient(to right, rgba(30,20,10,0.7), transparent)" :
+                    "linear-gradient(to right, rgba(8,12,20,0.7), transparent)",
+            transition: "background 5s ease-in-out",
           }}
         />
         {/* Right fog */}
         <div
           className="absolute inset-y-0 right-0 w-48"
           style={{
-            background: isFall
-              ? "linear-gradient(to left, rgba(25,15,5,0.7), transparent)"
-              : "linear-gradient(to left, rgba(10,15,8,0.7), transparent)",
-            transition: "background 3s ease-in-out",
+            background:
+              isSpring ? "linear-gradient(to left, rgba(12,18,10,0.7), transparent)" :
+                isSummer ? "linear-gradient(to left, rgba(18,15,8,0.7), transparent)" :
+                  isFall ? "linear-gradient(to left, rgba(30,20,10,0.7), transparent)" :
+                    "linear-gradient(to left, rgba(8,12,20,0.7), transparent)",
+            transition: "background 5s ease-in-out",
           }}
         />
         {/* Top fog */}
         <div
           className="absolute inset-x-0 top-0 h-36"
           style={{
-            background: isFall
-              ? "linear-gradient(to bottom, rgba(20,12,4,0.65), transparent)"
-              : "linear-gradient(to bottom, rgba(8,12,6,0.65), transparent)",
-            transition: "background 3s ease-in-out",
+            background:
+              isSpring ? "linear-gradient(to bottom, rgba(10,15,8,0.65), transparent)" :
+                isSummer ? "linear-gradient(to bottom, rgba(15,12,6,0.65), transparent)" :
+                  isFall ? "linear-gradient(to bottom, rgba(20,12,4,0.65), transparent)" :
+                    "linear-gradient(to bottom, rgba(5,10,15,0.6), transparent)",
+            transition: "background 5s ease-in-out",
           }}
         />
         {/* Bottom fog */}
         <div
           className="absolute inset-x-0 bottom-0 h-36"
           style={{
-            background: isFall
-              ? "linear-gradient(to top, rgba(20,12,4,0.72), transparent)"
-              : "linear-gradient(to top, rgba(8,12,6,0.72), transparent)",
-            transition: "background 3s ease-in-out",
+            background:
+              isSpring ? "linear-gradient(to top, rgba(10,15,8,0.72), transparent)" :
+                isSummer ? "linear-gradient(to top, rgba(15,12,6,0.72), transparent)" :
+                  isFall ? "linear-gradient(to top, rgba(20,12,4,0.72), transparent)" :
+                    "linear-gradient(to top, rgba(5,10,15,0.68), transparent)",
+            transition: "background 5s ease-in-out",
           }}
         />
       </div>

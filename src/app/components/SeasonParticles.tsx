@@ -1,15 +1,17 @@
 // ============================================================
-// ❄️🍂 SEASON PARTICLES — Canvas-based snow / falling leaves
+// ❄️🍂 SEASON PARTICLES — Canvas-based environmental effects
 // ============================================================
-// Realistic particle system using Canvas:
-//  Fall: Dense warm-colored falling leaves with rotation
-//  Summer: Gentle green leaves drifting gently
+// Cinematic particle system for 4 seasons:
+//  Spring: Floating pollen & pink cherry blossom petals
+//  Summer: Subtle heat shimmer & golden sun motes
+//  Autumn: Drifting orange/red/gold leaves
+//  Winter: Soft, slow-falling snowflakes with glow
 // ============================================================
 
 import { useRef, useEffect, useCallback } from "react";
 
 interface SeasonParticlesProps {
-    season: "summer" | "fall";
+    season: "spring" | "summer" | "fall" | "winter";
 }
 
 interface Particle {
@@ -24,77 +26,111 @@ interface Particle {
     wobblePhase: number;
     wobbleSpeed: number;
     wobbleAmp: number;
-    type: "snow" | "leaf";
-    leafColor?: string;
+    type: "pollen" | "blossom" | "mote" | "leaf" | "snow";
+    color?: string;
 }
 
-const LEAF_COLORS = [
-    "rgba(160,110,40,0.7)",
-    "rgba(140,90,30,0.6)",
-    "rgba(180,130,50,0.65)",
-    "rgba(120,80,25,0.55)",
-    "rgba(170,100,35,0.6)",
-];
+const COLORS = {
+    springPollen: "rgba(230, 240, 180, 0.4)",
+    springBlossom: ["rgba(255, 192, 203, 0.6)", "rgba(255, 182, 193, 0.5)", "rgba(255, 240, 245, 0.6)"],
+    summerMote: "rgba(255, 245, 180, 0.35)",
+    fallLeaf: [
+        "rgba(160, 110, 40, 0.7)",
+        "rgba(140, 90, 30, 0.6)",
+        "rgba(180, 130, 50, 0.65)",
+        "rgba(120, 80, 25, 0.55)",
+        "rgba(170, 100, 35, 0.6)",
+        "rgba(200, 80, 40, 0.65)",
+    ],
+    winterSnow: "rgba(255, 255, 255, 0.8)",
+};
 
-function createParticles(count: number, w: number, h: number, type: "snow" | "leaf"): Particle[] {
-    return Array.from({ length: count }, () => ({
+function createParticle(w: number, h: number, season: string): Particle {
+    const isWinter = season === "winter";
+    const isSpring = season === "spring";
+    const isSummer = season === "summer";
+    const isFall = season === "fall";
+
+    let type: Particle["type"] = "leaf";
+    if (isSpring) type = Math.random() > 0.3 ? "pollen" : "blossom";
+    else if (isSummer) type = "mote";
+    else if (isFall) type = "leaf";
+    else if (isWinter) type = "snow";
+
+    const size = type === "pollen" || type === "mote"
+        ? 0.5 + Math.random() * 1.2
+        : type === "snow"
+            ? 1.2 + Math.random() * 3.0
+            : 3 + Math.random() * 6;
+
+    const speedY = type === "snow"
+        ? 0.4 + Math.random() * 1.0
+        : type === "leaf" || type === "blossom"
+            ? 0.3 + Math.random() * 0.7
+            : (Math.random() - 0.5) * 0.2; // Pollen/motes drift more freely
+
+    const speedX = (Math.random() - 0.5) * 0.4;
+
+    const color = type === "pollen"
+        ? COLORS.springPollen
+        : type === "blossom"
+            ? COLORS.springBlossom[Math.floor(Math.random() * COLORS.springBlossom.length)]
+            : type === "mote"
+                ? COLORS.summerMote
+                : type === "leaf"
+                    ? COLORS.fallLeaf[Math.floor(Math.random() * COLORS.fallLeaf.length)]
+                    : COLORS.winterSnow;
+
+    return {
         x: Math.random() * w,
-        y: Math.random() * h - h, // Start above viewport
-        size: type === "snow" ? 1.5 + Math.random() * 3.5 : 3 + Math.random() * 5,
-        speedY: type === "snow" ? 0.5 + Math.random() * 1.5 : 0.3 + Math.random() * 0.8,
-        speedX: type === "snow" ? (Math.random() - 0.5) * 0.5 : (Math.random() - 0.3) * 0.4,
-        opacity: 0.3 + Math.random() * 0.6,
+        y: Math.random() * h,
+        size,
+        speedY,
+        speedX,
+        opacity: 0.2 + Math.random() * 0.6,
         rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.03,
+        rotationSpeed: (Math.random() - 0.5) * 0.04,
         wobblePhase: Math.random() * Math.PI * 2,
-        wobbleSpeed: 0.02 + Math.random() * 0.03,
-        wobbleAmp: type === "snow" ? 0.3 + Math.random() * 0.6 : 0.5 + Math.random() * 1.0,
+        wobbleSpeed: 0.01 + Math.random() * 0.03,
+        wobbleAmp: type === "snow" || type === "pollen" ? 0.2 + Math.random() * 0.5 : 0.6 + Math.random() * 1.2,
         type,
-        leafColor: type === "leaf" ? LEAF_COLORS[Math.floor(Math.random() * LEAF_COLORS.length)] : undefined,
-    }));
+        color,
+    };
 }
 
-function drawSnowflake(ctx: CanvasRenderingContext2D, p: Particle) {
-    ctx.save();
-    ctx.globalAlpha = p.opacity;
-    ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fill();
+function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
+    const { type, x, y, size, color, opacity, rotation } = p;
 
-    // Subtle glow
-    if (p.size > 2.5) {
-        ctx.globalAlpha = p.opacity * 0.3;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.globalAlpha = opacity;
+
+    if (type === "pollen" || type === "mote") {
+        ctx.fillStyle = color || "white";
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2);
-        grad.addColorStop(0, `rgba(255,255,255,${p.opacity * 0.4})`);
-        grad.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = grad;
+        ctx.arc(0, 0, size, 0, Math.PI * 2);
         ctx.fill();
+    } else if (type === "snow") {
+        ctx.fillStyle = "white";
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = "white";
+        ctx.beginPath();
+        ctx.arc(0, 0, size, 0, Math.PI * 2);
+        ctx.fill();
+    } else if (type === "blossom" || type === "leaf") {
+        ctx.rotate(rotation);
+        ctx.fillStyle = color || "white";
+
+        // Simple organic petal/leaf shape
+        ctx.beginPath();
+        ctx.ellipse(0, 0, size * 0.4, size, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Edge detail
+        ctx.strokeStyle = "rgba(0,0,0,0.1)";
+        ctx.lineWidth = 0.2;
+        ctx.stroke();
     }
-    ctx.restore();
-}
-
-function drawLeaf(ctx: CanvasRenderingContext2D, p: Particle) {
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rotation);
-    ctx.globalAlpha = p.opacity;
-    ctx.fillStyle = p.leafColor || "rgba(150,100,30,0.6)";
-
-    // Leaf shape — a simple elliptical leaf
-    ctx.beginPath();
-    ctx.ellipse(0, 0, p.size * 0.4, p.size, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Leaf vein
-    ctx.strokeStyle = `rgba(100,70,20,${p.opacity * 0.4})`;
-    ctx.lineWidth = 0.3;
-    ctx.beginPath();
-    ctx.moveTo(0, -p.size);
-    ctx.lineTo(0, p.size);
-    ctx.stroke();
 
     ctx.restore();
 }
@@ -118,42 +154,40 @@ export function SeasonParticles({ season }: SeasonParticlesProps) {
         const h = canvas.height;
         const currentSeason = seasonRef.current;
 
-        // Recreate particles if season changed
+        // Transitions: Fade out old particles, fade in new ones
         if (prevSeasonRef.current !== currentSeason) {
             prevSeasonRef.current = currentSeason;
-            const type = "leaf";
-            const count = currentSeason === "fall" ? 45 : 15;
-            particlesRef.current = createParticles(count, w, h, type);
+            const count = currentSeason === "fall" ? 50 : currentSeason === "winter" ? 60 : 35;
+            particlesRef.current = Array.from({ length: count }, () => createParticle(w, h, currentSeason));
         }
 
         ctx.clearRect(0, 0, w, h);
 
         for (const p of particlesRef.current) {
-            // Movement
+            // Physics
             p.wobblePhase += p.wobbleSpeed;
-            p.x += p.speedX + Math.sin(p.wobblePhase) * p.wobbleAmp;
+
+            // Wind & Turbulence
+            const wind = Math.sin(p.y * 0.002 + p.wobblePhase) * 0.4;
+            p.x += p.speedX + wind + Math.sin(p.wobblePhase) * p.wobbleAmp;
             p.y += p.speedY;
+
+            // Rotation
             p.rotation += p.rotationSpeed;
 
-            // Wind effect for snow
-            if (p.type === "snow") {
-                p.x += Math.sin(p.y * 0.003) * 0.3;
+            // Summer heat shimmer logic: oscillate speedY slightly
+            if (currentSeason === "summer") {
+                p.speedY = -0.15 + Math.sin(p.wobblePhase) * 0.1;
+                p.speedX *= 0.99; // Damping
             }
 
             // Wrap around
-            if (p.y > h + 20) {
-                p.y = -10 - Math.random() * 40;
-                p.x = Math.random() * w;
-            }
+            if (p.y > h + 20) p.y = -10, p.x = Math.random() * w;
+            if (p.y < -20) p.y = h + 10, p.x = Math.random() * w;
             if (p.x > w + 20) p.x = -10;
             if (p.x < -20) p.x = w + 10;
 
-            // Draw
-            if (p.type === "snow") {
-                drawSnowflake(ctx, p);
-            } else {
-                drawLeaf(ctx, p);
-            }
+            drawParticle(ctx, p);
         }
 
         animRef.current = requestAnimationFrame(draw);
@@ -166,10 +200,10 @@ export function SeasonParticles({ season }: SeasonParticlesProps) {
         const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            const type = "leaf";
-            const count = seasonRef.current === "fall" ? 45 : 15;
-            particlesRef.current = createParticles(count, canvas.width, canvas.height, type);
+            const count = seasonRef.current === "fall" ? 50 : seasonRef.current === "winter" ? 60 : 35;
+            particlesRef.current = Array.from({ length: count }, () => createParticle(canvas.width, canvas.height, seasonRef.current));
         };
+
         resize();
         window.addEventListener("resize", resize);
         animRef.current = requestAnimationFrame(draw);
